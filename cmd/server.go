@@ -15,15 +15,17 @@ import (
 
 func NewService() *Service {
 	return &Service{
-		// allocate 0 byte
+		// allocates 0 byte
 		running: make(chan interface{}),
 	}
 }
 
 type Service struct {
+	// running channel prevents service exist unexpected
 	running chan interface{}
-	c       *cron.Cron
-	http    *http.Server
+
+	c    *cron.Cron
+	http *http.Server
 }
 
 func (s *Service) Start() {
@@ -34,7 +36,11 @@ func (s *Service) Start() {
 
 	go func() {
 		<-quit
-		defer close(s.running)
+		defer func() {
+			// now service can stop
+			close(s.running)
+		}()
+
 		s.stop()
 	}()
 
