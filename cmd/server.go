@@ -56,15 +56,6 @@ func (s *Service) stop() {
 		log.Printf("http close error %v\n", err)
 	}
 
-	stop := s.c.Stop()
-	// wait running jobs stop
-	select {
-	case <-ctx.Done():
-		log.Printf("clean up err %v\n", ctx.Err())
-	case <-stop.Done():
-		log.Println("cron stopped")
-	}
-
 	// don't need to separate the reason
 	reasonCareless, cronCancel := context.WithTimeout(s.c.Stop(), 30*time.Second)
 	defer cronCancel()
